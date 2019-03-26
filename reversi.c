@@ -8,13 +8,11 @@ int black = -1;
 int empty = 0;
 int limit = 2147483647;
 
-int renderrowcol(int* board, int rows);
 int render(int *board, int size);
 int* genboard(int rows);
 int bishopcontrol(int sidelength, int position, int direction);
 int printarray(int *board, int size);
 int* move(int* board, int rows, int player, int pos);
-int undomove(int* board, int player, int* changes);
 int* getneighbours(int *board, int rows, int pos);
 int* GetPlayerPositions(int *board, int rows, int player);
 int* GetPlayerLegalMoves(int *board, int rows, int player);
@@ -364,7 +362,7 @@ int* move(int* board, int rows, int player, int pos) {
 
         if (newboard[pos + (rows + 1)*adj] == player) {
             for (i = 1; i < adj; i++) {
-                //if (newboard[pos + (rows + 1)*i] == empty) {break;}
+                if (newboard[pos + (rows + 1)*i] == empty) {break;}
                 newboard[pos + (rows + 1)*i] = player;
             }
         }
@@ -373,7 +371,7 @@ int* move(int* board, int rows, int player, int pos) {
 
         if (newboard[pos + (rows - 1)*adj] == player) {
             for (i = 1; i < adj; i++) {
-                //if (newboard[pos + (rows - 1)*i] == empty) {break;}
+                if (newboard[pos + (rows - 1)*i] == empty) {break;}
                 newboard[pos + (rows - 1)*i] = player;
             }
         }
@@ -382,7 +380,7 @@ int* move(int* board, int rows, int player, int pos) {
 
         if (newboard[pos - (rows + 1)*adj] == player) {
             for (i = 1; i < adj; i++) {
-                //if (newboard[pos - (rows + 1)*i] == empty) {break;}
+                if (newboard[pos - (rows + 1)*i] == empty) {break;}
                 newboard[pos - (rows + 1)*i] = player;
             }
         }
@@ -391,7 +389,7 @@ int* move(int* board, int rows, int player, int pos) {
 
         if (newboard[pos - (rows - 1)*adj] == player) {
             for (i = 1; i < adj; i++) {
-                //if (newboard[pos - (rows - 1)*i] == empty) {break;}
+                if (newboard[pos - (rows - 1)*i] == empty) {break;}
                 newboard[pos - (rows - 1)*i] = player;
             }
         }
@@ -578,7 +576,7 @@ int GameOver(int *board, int size) {
 
 // Return Value: {1 or 0 to represent Success, Move as an Index}
 int* reversiplayer(int *board, int rows, int player) {
-    double countdown = 9.9;
+    double countdown = 9.9/10;
     double timetaken = 0;
     clock_t start, end;
     int *active = NULL;
@@ -648,8 +646,8 @@ int printarray(int *array, int size) {
 int Game() {
     // Plays Against Itself
     int rows = 0;
-    //printf("Enter row, or col size: ");
-    //scanf("%d", &rows);
+    printf("Enter row, or col size: ");
+    scanf("%d", &rows);
     rows = 8;
     int Turn = 1;
     int score = 0;

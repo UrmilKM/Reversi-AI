@@ -14,12 +14,11 @@ int bishopcontrol(int sidelength, int position, int direction);
 int printarray(int *board, int size);
 int* move(int* board, int rows, int player, int pos);
 int* getneighbours(int *board, int rows, int pos);
-int* GetPlayerPositions(int *board, int rows, int player);
 int* GetPlayerLegalMoves(int *board, int rows, int player);
 int rate(int *board, int size);
 int GameOver(int *board, int size);
 int* AlphaBeta(int *board, int rows, int player, int depth, int alpha, int beta, double countdown, int *Master);
-int* reversiplayer(int *board, int rows, int player);
+int reversiplayer(int *board, int rows, int player);
 int Game();
 
 int render(int *board, int rows) {
@@ -443,24 +442,6 @@ int bishopcontrol(int sidelength, int position, int direction) {
     return 0;
 }
 
-int* GetPlayerPositions(int *board, int rows, int player) {
-    if (board == NULL || (player != black && player != white)) {
-        printf("player position issue");
-        return NULL;
-    }
-    int size = rows*rows;
-    int *positions = (int *)malloc(sizeof(int)*(size + 1)); // 0th Index represents the size, assumption of worst case
-    int j = 1;
-    for (int i = 0; i < size; i++) {
-        if (board[i] == player) {
-            positions[j] = i;
-            j++;
-        }
-    }
-    positions[0] = j;
-    return positions;
-}
-
 int* GetPlayerLegalMoves(int *board, int rows, int player) {
     if (board == NULL || (player != black && player != white)) {
         printf("get moves issue");
@@ -501,7 +482,7 @@ int* AlphaBeta(int *board, int rows, int player, int depth, int alpha, int beta,
         if (countdown <= 0) {*Master = 1;}
         rv[0] = rate(board, size);
         rv[1] = -1;
-        return rv;
+        return rv[1];
     }
     int *moves = GetPlayerLegalMoves(board, rows, player);
     for (int j = 1; j < moves[0]; j++) {
@@ -574,22 +555,23 @@ int GameOver(int *board, int size) {
     return 1;
 }
 
-// Return Value: {1 or 0 to represent Success, Move as an Index}
-int* reversiplayer(int *board, int rows, int player) {
-    double countdown = 9.9/10;
+// Return Value: {Move as an Index, -1 for error}
+int reversiplayer(int *board, int rows, int player) {
+    double countdown = 0.9;
     double timetaken = 0;
-    clock_t start, end;
+    time_t start, end;
     int *active = NULL;
     int *rv = (int *)malloc(2*sizeof(int));
+    rv[1] = -1;
     int depth = 1;
     int Master = 0;
-    for (depth = 1; depth < 15 && countdown > 0; depth++) {
-        start = clock();
+    for (depth = 1; depth < rows*rows && countdown > 0; depth++) {
+        start = time(NULL);
         free(active);
         active = NULL;
         active = AlphaBeta(board, rows, player, depth, -limit, limit, countdown, &Master);
-        end = clock();
-        timetaken = ((double) (end - start)) / CLOCKS_PER_SEC;
+        end = time(NULL);
+        timetaken = (double) (end - start);
         countdown -= timetaken;
         if (active[1] != -1 && Master == 0) {
             rv[0] = active[0];
@@ -599,9 +581,8 @@ int* reversiplayer(int *board, int rows, int player) {
         } else {break;}
         if (rv[0] == limit || rv[0] == -limit) {break;}
     }
-    rv[0] = 1;
     printf("Final Depth - %d\n", depth - 2);
-    return rv;
+    return rv[1];
 }
 
 int* genboard(int rows) {
@@ -648,7 +629,6 @@ int Game() {
     int rows = 0;
     printf("Enter row, or col size: ");
     scanf("%d", &rows);
-    rows = 8;
     int Turn = 1;
     int score = 0;
     int *board = genboard(rows);
